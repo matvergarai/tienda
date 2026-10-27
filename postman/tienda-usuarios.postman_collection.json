@@ -1,0 +1,147 @@
+{
+  "info": {
+    "name": "Tienda - usuarios",
+    "description": "Registro, login y gestion de usuarios. El registro publico crea un CLIENTE. El administrador usa el encabezado X-Token.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "adminToken", "value": "" },
+    { "key": "clienteToken", "value": "" },
+    { "key": "clienteId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Login administrador",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 200) {",
+              "  const body = pm.response.json();",
+              "  pm.collectionVariables.set('adminToken', body.token);",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"correo\": \"admin@tienda.cl\",\n  \"clave\": \"Admin12345\"\n}"
+        },
+        "url": "{{baseUrl}}/usuarios/login"
+      }
+    },
+    {
+      "name": "Listar usuarios (admin)",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "X-Token", "value": "{{adminToken}}" }],
+        "url": "{{baseUrl}}/usuarios"
+      }
+    },
+    {
+      "name": "Registrar cliente",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 201) {",
+              "  pm.collectionVariables.set('clienteId', pm.response.json().id);",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Ana Perez\",\n  \"correo\": \"ana@tienda.cl\",\n  \"clave\": \"secreto12\"\n}"
+        },
+        "url": "{{baseUrl}}/usuarios"
+      }
+    },
+    {
+      "name": "Login cliente",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 200) {",
+              "  const body = pm.response.json();",
+              "  pm.collectionVariables.set('clienteToken', body.token);",
+              "  pm.collectionVariables.set('clienteId', body.id);",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"correo\": \"ana@tienda.cl\",\n  \"clave\": \"secreto12\"\n}"
+        },
+        "url": "{{baseUrl}}/usuarios/login"
+      }
+    },
+    {
+      "name": "Cliente intenta listar usuarios",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "X-Token", "value": "{{clienteToken}}" }],
+        "url": "{{baseUrl}}/usuarios"
+      }
+    },
+    {
+      "name": "Ver mi usuario",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "X-Token", "value": "{{clienteToken}}" }],
+        "url": "{{baseUrl}}/usuarios/{{clienteId}}"
+      }
+    },
+    {
+      "name": "Cliente actualiza su nombre",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "X-Token", "value": "{{clienteToken}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Ana Perez Soto\",\n  \"correo\": \"ana@tienda.cl\"\n}"
+        },
+        "url": "{{baseUrl}}/usuarios/{{clienteId}}"
+      }
+    },
+    {
+      "name": "Admin crea un cliente",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "X-Token", "value": "{{adminToken}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Luis Soto\",\n  \"correo\": \"luis@tienda.cl\",\n  \"clave\": \"secreto12\",\n  \"rol\": \"CLIENTE\"\n}"
+        },
+        "url": "{{baseUrl}}/usuarios"
+      }
+    }
+  ]
+}
