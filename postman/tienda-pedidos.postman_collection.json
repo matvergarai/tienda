@@ -5,7 +5,8 @@
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "usuariosUrl", "value": "http://localhost:8080" },
+    { "key": "baseUrl", "value": "http://localhost:8081" },
     { "key": "adminToken", "value": "" },
     { "key": "clienteToken", "value": "" },
     { "key": "productoId", "value": "1" },
@@ -34,7 +35,7 @@
           "mode": "raw",
           "raw": "{\n  \"correo\": \"ana@tienda.cl\",\n  \"clave\": \"secreto12\"\n}"
         },
-        "url": "{{baseUrl}}/usuarios/login"
+        "url": "{{usuariosUrl}}/usuarios/login"
       }
     },
     {
@@ -140,7 +141,7 @@
           "mode": "raw",
           "raw": "{\n  \"correo\": \"admin@tienda.cl\",\n  \"clave\": \"Admin12345\"\n}"
         },
-        "url": "{{baseUrl}}/usuarios/login"
+        "url": "{{usuariosUrl}}/usuarios/login"
       }
     },
     {

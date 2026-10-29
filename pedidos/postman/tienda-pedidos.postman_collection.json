@@ -1,0 +1,171 @@
+{
+  "info": {
+    "name": "Tienda - productos y pedidos",
+    "description": "Busqueda, visualizacion y compra. El pago queda simulado como PAGADO. No hay pasarela de pago.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "usuariosUrl", "value": "http://localhost:8080" },
+    { "key": "baseUrl", "value": "http://localhost:8081" },
+    { "key": "adminToken", "value": "" },
+    { "key": "clienteToken", "value": "" },
+    { "key": "productoId", "value": "1" },
+    { "key": "pedidoId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Login cliente",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 200) {",
+              "  pm.collectionVariables.set('clienteToken', pm.response.json().token);",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"correo\": \"ana@tienda.cl\",\n  \"clave\": \"secreto12\"\n}"
+        },
+        "url": "{{usuariosUrl}}/usuarios/login"
+      }
+    },
+    {
+      "name": "Buscar productos",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 200) {",
+              "  const productos = pm.response.json();",
+              "  if (productos.length > 0) {",
+              "    pm.collectionVariables.set('productoId', productos[0].id);",
+              "  }",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "X-Token", "value": "{{clienteToken}}" }],
+        "url": {
+          "raw": "{{baseUrl}}/productos?texto=",
+          "host": ["{{baseUrl}}"],
+          "path": ["productos"],
+          "query": [{ "key": "texto", "value": "" }]
+        }
+      }
+    },
+    {
+      "name": "Ver un producto",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "X-Token", "value": "{{clienteToken}}" }],
+        "url": "{{baseUrl}}/productos/{{productoId}}"
+      }
+    },
+    {
+      "name": "Comprar",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 201) {",
+              "  pm.collectionVariables.set('pedidoId', pm.response.json().id);",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "X-Token", "value": "{{clienteToken}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"items\": [\n    { \"productoId\": {{productoId}}, \"cantidad\": 1 }\n  ]\n}"
+        },
+        "url": "{{baseUrl}}/pedidos"
+      }
+    },
+    {
+      "name": "Mis pedidos",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "X-Token", "value": "{{clienteToken}}" }],
+        "url": "{{baseUrl}}/pedidos"
+      }
+    },
+    {
+      "name": "Ver un pedido",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "X-Token", "value": "{{clienteToken}}" }],
+        "url": "{{baseUrl}}/pedidos/{{pedidoId}}"
+      }
+    },
+    {
+      "name": "Login administrador",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 200) {",
+              "  pm.collectionVariables.set('adminToken', pm.response.json().token);",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"correo\": \"admin@tienda.cl\",\n  \"clave\": \"Admin12345\"\n}"
+        },
+        "url": "{{usuariosUrl}}/usuarios/login"
+      }
+    },
+    {
+      "name": "Admin ve todos los pedidos",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "X-Token", "value": "{{adminToken}}" }],
+        "url": "{{baseUrl}}/pedidos"
+      }
+    },
+    {
+      "name": "Admin intenta comprar",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "X-Token", "value": "{{adminToken}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"items\": [\n    { \"productoId\": 1, \"cantidad\": 1 }\n  ]\n}"
+        },
+        "url": "{{baseUrl}}/pedidos"
+      }
+    }
+  ]
+}
